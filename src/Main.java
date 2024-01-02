@@ -1,17 +1,22 @@
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+	
+	//makeTestData()가 static 함수이므로 list를 전역변수로 만들어줘야 데이터저장이 가능해진다. 
+	static List<Article> articles = new ArrayList<>();
+
 	public static void main(String[] args) {
 		System.out.println("== 프로그램 시작 == ");
 
+		makeTestData();
+
 		Scanner sc = new Scanner(System.in);
 
-		int lastArticleId = 0;
-		List<Article> articles = new ArrayList<>();
+		//test데이터 3개를 이미 입력해서 3부터 시작.
+		int lastArticleId = 3;
 
 		while (true) {
 			System.out.print("명령어 > ");
@@ -29,12 +34,13 @@ public class Main {
 				System.out.println("==게시글 작성==");
 				int id = lastArticleId + 1;
 				String regDate = Util.getNowDate_TimeStr();
+				String updateDate = regDate;
 				System.out.print("제목 : ");
 				String title = sc.nextLine();
 				System.out.print("내용 : ");
 				String body = sc.nextLine();
 
-				Article article = new Article(id, regDate, title, body);
+				Article article = new Article(id, regDate, updateDate, title, body);
 				articles.add(article);
 
 				System.out.printf("%d번 글이 생성 되었습니다.\n", id);
@@ -44,10 +50,17 @@ public class Main {
 				if (articles.size() == 0) {
 					System.out.println("아무것도 없어");
 				} else {
-					System.out.println("  번호  /  제목  ");
+					System.out.println("  번호  /  제목    /   작성일     /   조회");
 					for (int i = articles.size() - 1; i >= 0; i--) {
 						Article article = articles.get(i);
-						System.out.printf("  %4d  /   %s  \n", article.getId(), article.getTitle());
+						if (Util.getNowDate_TimeStr().split(" ")[0].equals(article.getRegDate().split(" ")[0])) {
+							System.out.printf("  %4d  /   %s    /     %s   /   %d\n", article.getId(),
+									article.getTitle(), article.getRegDate().split(" ")[1], article.getHit());
+						} else {
+							System.out.printf("  %4d  /   %s    /     %s   /   %d\n", article.getId(),
+									article.getTitle(), article.getRegDate().split(" ")[0], article.getHit());
+						}
+
 					}
 				}
 
@@ -56,8 +69,6 @@ public class Main {
 				String[] cmdDiv = cmd.split(" ");
 
 				int id = 0;
-
-				// detail뒤 숫자대신 문자나 다른거 입력시 예외처리
 
 				try {
 					id = Integer.parseInt(cmdDiv[2]);
@@ -78,12 +89,16 @@ public class Main {
 
 				if (foundArticle == null) {
 					System.out.printf("%d번 게시글은 없습니다\n", id);
-				} else {
-					System.out.println("번호 : " + foundArticle.getId());
-					System.out.println("날짜 : " + foundArticle.getRegDate());
-					System.out.println("제목 : " + foundArticle.getTitle());
-					System.out.println("내용 : " + foundArticle.getBody());
+					continue;
 				}
+				System.out.println("번호 : " + foundArticle.getId());
+				System.out.println("작성 날짜 : " + foundArticle.getRegDate());
+				System.out.println("수정 날짜 : " + foundArticle.getUpdateDate());
+				System.out.println("제목 : " + foundArticle.getTitle());
+				System.out.println("내용 : " + foundArticle.getBody());
+				System.out.println("조회 : " + foundArticle.getHit());
+
+				foundArticle.setHit(foundArticle.getHit() + 1);
 
 			} else if (cmd.startsWith("article delete")) {
 
@@ -98,40 +113,63 @@ public class Main {
 					continue;
 				}
 
-				int foundIndex = -1;
-//				Article foundArticle = null;
+				Article foundArticle = null;
 
 				for (int i = 0; i < articles.size(); i++) {
-					//인덱스 번호를 찾아서, 그 인덱스에 해당하는 객체를 가져옴
 					Article article = articles.get(i);
-					
-					//객체 내부의 숫자와 입력한 id값을 비교한다.
 					if (article.getId() == id) {
-						//숫자와 id값이 같은 인덱스번호를 넘겨준다.
-						foundIndex = i;
-//						foundArticle = article;
+						foundArticle = article;
 						break;
 					}
 				}
 
-//				if(foundArticle == null)
-				if (foundIndex == -1) {
+				if (foundArticle == null) {
 					System.out.printf("%d번 게시글은 없습니다\n", id);
-				} else {
-//					articles.remove(id-1);
-					articles.remove(foundIndex);
-					System.out.println(id + "번 글이 삭제되었습니다.");
+					continue;
 				}
-			} else if(cmd.equals("article list")) {
-				
-				
-				System.out.printf("번호		/		제목");
-				for(int i = 0; i < articles.size(); i++) {
-					System.out.println(articles.get(i).getId()+articles.get(i).getTitle());
+				articles.remove(foundArticle);
+				System.out.println(id + "번 글이 삭제되었습니다.");
+
+			} else if (cmd.startsWith("article modify")) {
+
+				String[] cmdDiv = cmd.split(" ");
+
+				int id = 0;
+
+				try {
+					id = Integer.parseInt(cmdDiv[2]);
+				} catch (Exception e) {
+					System.out.println("번호는 정수로 입력해");
+					continue;
 				}
-				
-			}
-			else {
+
+				Article foundArticle = null;
+
+				for (int i = 0; i < articles.size(); i++) {
+					Article article = articles.get(i);
+					if (article.getId() == id) {
+						foundArticle = article;
+						break;
+					}
+				}
+
+				if (foundArticle == null) {
+					System.out.printf("%d번 게시글은 없습니다\n", id);
+					continue;
+				}
+
+				System.out.println("기존 제목 : " + foundArticle.getTitle());
+				System.out.println("기존 내용 : " + foundArticle.getBody());
+				System.out.print("새 제목 : ");
+				String newTitle = sc.nextLine();
+				System.out.print("새 내용 : ");
+				String newBody = sc.nextLine();
+
+				foundArticle.setUpdateDate(Util.getNowDate_TimeStr());
+				foundArticle.setTitle(newTitle);
+				foundArticle.setBody(newBody);
+				System.out.println(id + "번 글이 수정되었습니다.");
+			} else {
 				System.out.println("사용할 수 없는 명령어입니다");
 			}
 		}
@@ -140,20 +178,38 @@ public class Main {
 
 		sc.close();
 	}
+
+	private static void makeTestData() {
+		System.out.println("테스트를 위한 데이터를 생성합니다.");
+		articles.add(new Article(1, "2023-12-12 12:12:12", Util.getNowDate_TimeStr(), "제목1", "내용1", 11));
+		articles.add(new Article(2, "2024-01-01 12:12:12", Util.getNowDate_TimeStr(), "제목2", "내용2", 22));
+		articles.add(new Article(3, Util.getNowDate_TimeStr(), Util.getNowDate_TimeStr(), "제목3", "내용3", 33));
+	}
 }
 
 class Article {
 	private int id;
 	private String regDate;
+	private String updateDate;
 
 	private String title;
 	private String body;
 
-	public Article(int id, String regDate, String title, String body) {
+	private int hit;
+
+	public Article(int id, String regDate, String updateDate, String title, String body) {
+		this(id, regDate, updateDate, title, body, 0);
+		//constructor, 생성자 오버로딩에서 매개변수가 부족할시 추가해서 밑에 기존생성자를 호출해서 넘겨준다.
+		// 그대로 설정시 오버로딩된 생성자가 호출된다.
+	}
+
+	public Article(int id, String regDate, String updateDate, String title, String body, int hit) {
 		this.id = id;
 		this.regDate = regDate;
+		this.updateDate = updateDate;
 		this.title = title;
 		this.body = body;
+		this.hit = hit;
 	}
 
 	public int getId() {
@@ -172,6 +228,14 @@ class Article {
 		this.regDate = regDate;
 	}
 
+	public String getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
+
 	public String getTitle() {
 		return title;
 	}
@@ -186,5 +250,13 @@ class Article {
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+
+	public int getHit() {
+		return hit;
+	}
+
+	public void setHit(int hit) {
+		this.hit = hit;
 	}
 }
