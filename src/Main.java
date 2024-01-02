@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-	
-	//makeTestData()가 static 함수이므로 list를 전역변수로 만들어줘야 데이터저장이 가능해진다. 
 	static List<Article> articles = new ArrayList<>();
 
 	public static void main(String[] args) {
@@ -15,7 +13,6 @@ public class Main {
 
 		Scanner sc = new Scanner(System.in);
 
-		//test데이터 3개를 이미 입력해서 3부터 시작.
 		int lastArticleId = 3;
 
 		while (true) {
@@ -77,15 +74,7 @@ public class Main {
 					continue;
 				}
 
-				Article foundArticle = null;
-
-				for (int i = 0; i < articles.size(); i++) {
-					Article article = articles.get(i);
-					if (article.getId() == id) {
-						foundArticle = article;
-						break;
-					}
-				}
+				Article foundArticle = getArticleById(id);
 
 				if (foundArticle == null) {
 					System.out.printf("%d번 게시글은 없습니다\n", id);
@@ -113,15 +102,7 @@ public class Main {
 					continue;
 				}
 
-				Article foundArticle = null;
-
-				for (int i = 0; i < articles.size(); i++) {
-					Article article = articles.get(i);
-					if (article.getId() == id) {
-						foundArticle = article;
-						break;
-					}
-				}
+				Article foundArticle = getArticleById(id);
 
 				if (foundArticle == null) {
 					System.out.printf("%d번 게시글은 없습니다\n", id);
@@ -143,15 +124,7 @@ public class Main {
 					continue;
 				}
 
-				Article foundArticle = null;
-
-				for (int i = 0; i < articles.size(); i++) {
-					Article article = articles.get(i);
-					if (article.getId() == id) {
-						foundArticle = article;
-						break;
-					}
-				}
+				Article foundArticle = getArticleById(id);
 
 				if (foundArticle == null) {
 					System.out.printf("%d번 게시글은 없습니다\n", id);
@@ -178,6 +151,17 @@ public class Main {
 
 		sc.close();
 	}
+	
+	//데이터 찾기
+	private static Article getArticleById(int id) {
+		for (int i = 0; i < articles.size(); i++) {
+			Article article = articles.get(i);
+			if (article.getId() == id) {
+				return article;
+			}
+		}
+		return null;
+	}
 
 	private static void makeTestData() {
 		System.out.println("테스트를 위한 데이터를 생성합니다.");
@@ -199,8 +183,6 @@ class Article {
 
 	public Article(int id, String regDate, String updateDate, String title, String body) {
 		this(id, regDate, updateDate, title, body, 0);
-		//constructor, 생성자 오버로딩에서 매개변수가 부족할시 추가해서 밑에 기존생성자를 호출해서 넘겨준다.
-		// 그대로 설정시 오버로딩된 생성자가 호출된다.
 	}
 
 	public Article(int id, String regDate, String updateDate, String title, String body, int hit) {
