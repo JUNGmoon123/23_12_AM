@@ -56,10 +56,9 @@ public class Main {
 				String[] cmdDiv = cmd.split(" ");
 
 				int id = 0;
-				
-				
-				//detail뒤 숫자대신 문자나 다른거 입력시 예외처리
-				
+
+				// detail뒤 숫자대신 문자나 다른거 입력시 예외처리
+
 				try {
 					id = Integer.parseInt(cmdDiv[2]);
 				} catch (Exception e) {
@@ -86,7 +85,53 @@ public class Main {
 					System.out.println("내용 : " + foundArticle.getBody());
 				}
 
-			} else {
+			} else if (cmd.startsWith("article delete")) {
+
+				String[] cmdDiv = cmd.split(" ");
+
+				int id = 0;
+
+				try {
+					id = Integer.parseInt(cmdDiv[2]);
+				} catch (Exception e) {
+					System.out.println("번호는 정수로 입력해");
+					continue;
+				}
+
+				int foundIndex = -1;
+//				Article foundArticle = null;
+
+				for (int i = 0; i < articles.size(); i++) {
+					//인덱스 번호를 찾아서, 그 인덱스에 해당하는 객체를 가져옴
+					Article article = articles.get(i);
+					
+					//객체 내부의 숫자와 입력한 id값을 비교한다.
+					if (article.getId() == id) {
+						//숫자와 id값이 같은 인덱스번호를 넘겨준다.
+						foundIndex = i;
+//						foundArticle = article;
+						break;
+					}
+				}
+
+//				if(foundArticle == null)
+				if (foundIndex == -1) {
+					System.out.printf("%d번 게시글은 없습니다\n", id);
+				} else {
+//					articles.remove(id-1);
+					articles.remove(foundIndex);
+					System.out.println(id + "번 글이 삭제되었습니다.");
+				}
+			} else if(cmd.equals("article list")) {
+				
+				
+				System.out.printf("번호		/		제목");
+				for(int i = 0; i < articles.size(); i++) {
+					System.out.println(articles.get(i).getId()+articles.get(i).getTitle());
+				}
+				
+			}
+			else {
 				System.out.println("사용할 수 없는 명령어입니다");
 			}
 		}
