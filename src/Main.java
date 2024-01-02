@@ -6,7 +6,8 @@ import java.util.Scanner;
 
 public class Main {
 	static List<Article> articles = new ArrayList<>();
-
+	static List<Member> members = new ArrayList<>();
+	
 	public static void main(String[] args) {
 		System.out.println("== 프로그램 시작 == ");
 
@@ -15,7 +16,7 @@ public class Main {
 		Scanner sc = new Scanner(System.in);
 
 		int lastArticleId = 3;
-
+		int memberId = 0;
 		while (true) {
 			System.out.print("명령어 > ");
 			String cmd = sc.nextLine().trim();
@@ -164,7 +165,37 @@ public class Main {
 				foundArticle.setTitle(newTitle);
 				foundArticle.setBody(newBody);
 				System.out.println(id + "번 글이 수정되었습니다.");
-			} else {
+			} else if (cmd.equals("member join")) {
+				System.out.println("== 회원가입 ==");
+				
+				
+//				List<Member> checkMember = members;
+				String regDate = Util.getNowDate_TimeStr();
+				System.out.print("아이디 : ");
+				String loginid = sc.nextLine().trim();
+				System.out.print("패스워드 : ");
+				String loginPw = sc.nextLine();
+				System.out.print("이름 : ");
+				String name = sc.nextLine();
+				int id = memberId + 1;
+				Member member = new Member(id, regDate, loginid,  loginPw,  name); 
+				memberId++;
+				
+				int checkNum = checkIdPw(loginid, loginPw);
+				if(checkNum == 1) {
+					System.out.println("id/pw가 중복되지 않습니다.");
+					members.add(member);
+					System.out.printf("%d 번 회원이 가입 되었습니다. %s님 환영합니다.\n", id, loginid);
+				}
+				else {
+					System.out.println("id/pw가 중복됩니다.");
+					System.out.println("다시 시도해주세요.");
+				}
+
+			}
+			
+			
+			else {
 				System.out.println("사용할 수 없는 명령어입니다");
 			}
 		}
@@ -172,6 +203,21 @@ public class Main {
 		System.out.println("== 프로그램 끝 == ");
 
 		sc.close();
+	}
+
+	private static int checkIdPw(String loginid, String loginPw) {
+		List<Member> checkMembers = members;
+		for(int i = 0; i < checkMembers.size(); i++) {
+			Member chmember = checkMembers.get(i);
+			if(chmember.getLoginid().equals(loginid)) {
+				return -1;
+			}
+			else if(chmember.getLoginPw().equals(loginPw)) {
+				return -1;
+			}
+		}
+		return 1;
+		
 	}
 
 	private static Article getArticleById(int id) {
@@ -191,6 +237,55 @@ public class Main {
 		articles.add(new Article(3, Util.getNowDate_TimeStr(), Util.getNowDate_TimeStr(), "제목1233", "내용3", 33));
 	}
 }
+class Member{
+	private int id;
+	private	String regDate;
+	private String loginid;
+	private String loginPw;
+	private String name;
+	
+	public Member(int id, String regDate, String loginid, String loginPw, String name) {
+		this.id = id;
+		this.loginid = loginid;
+		this.loginPw = loginPw;
+		this.name = name;
+		this.regDate = regDate;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getRegDate() {
+		return regDate;
+	}
+	public void setRegDate(String regDate) {
+		this.regDate = regDate;
+	}
+	public String getLoginid() {
+		return loginid;
+	}
+	public void setLoginid(String loginid) {
+		this.loginid = loginid;
+	}
+	public String getLoginPw() {
+		return loginPw;
+	}
+	public void setLoginPw(String loginPw) {
+		this.loginPw = loginPw;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+}
+
 
 class Article {
 	private int id;
