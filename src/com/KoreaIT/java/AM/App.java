@@ -20,7 +20,7 @@ public class App {
 
 		articleController.makeTestData();
 		memberController.makeTestData();
-		
+
 		while (true) {
 			System.out.print("명령어 > ");
 			String cmd = sc.nextLine().trim();
@@ -31,7 +31,7 @@ public class App {
 			}
 
 			if (cmd.equals("exit")) {
-				break; 
+				break;
 			}
 
 			String[] cmdBits = cmd.split(" ");
@@ -53,11 +53,31 @@ public class App {
 				System.out.println("사용할 수 없는 명령어입니다3");
 				continue;
 			}
-			//controller는 controllerName에 어떤 단어가 들어오냐에 따라
-			//article또는 member클래스를 실행한다.
-			//추상클래스로 만들어진 Controller를 article과 member가 상속해서
-			//2개 클래스가 오버라이딩을 하기때문에 app의 메소드에서 선택해서
-			//실행할 수 있다. cmd는 문자열 그대로 전해주기 위해서 전달한다.
+
+			String forLoginCheck = controllerName + "/" + actionMethodName;
+
+			switch (forLoginCheck) {
+			case "article/write":
+			case "article/modify":
+			case "article/delete":
+			case "member/logout":
+				if (Controller.isLogined() == false) {
+					System.out.println("로그인 하고 이용해");
+					continue;
+				}
+				break;
+			}
+			
+			switch (forLoginCheck) {
+			case "member/login":
+			case "member/join":
+				if (Controller.isLogined()) {
+					System.out.println("로그아웃 하고 이용해");
+					continue;
+				}
+				break;
+			}
+
 			controller.doAction(actionMethodName, cmd);
 		}
 

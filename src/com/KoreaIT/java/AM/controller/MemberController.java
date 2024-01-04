@@ -11,8 +11,7 @@ public class MemberController extends Controller {
 	private List<Member> members;
 	private Scanner sc;
 	private String cmd;
-	private int s = 0;
-	
+
 	int lastMemberId = 3;
 
 	public MemberController(Scanner sc) {
@@ -28,17 +27,9 @@ public class MemberController extends Controller {
 			doJoin();
 			break;
 		case "login":
-			if (isLogined()) {
-				System.out.println("이미 로그인 상태야");
-				return;
-			}
 			doLogin();
 			break;
 		case "logout":
-			if (!isLogined()) {
-				System.out.println("이미 로그아웃 상태야");
-				return;
-			}
 			doLogout();
 			break;
 		default:
@@ -69,7 +60,7 @@ public class MemberController extends Controller {
 		}
 
 		loginedMember = member;
-		
+
 		System.out.printf("로그인 성공! %s님 반갑습니다.\n", member.getName());
 
 	}
@@ -112,6 +103,7 @@ public class MemberController extends Controller {
 
 		System.out.print("이름 : ");
 		String name = sc.nextLine();
+
 		Member member = new Member(id, regDate, loginId, loginPw, name);
 		members.add(member);
 
