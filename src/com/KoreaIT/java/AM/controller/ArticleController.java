@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.KoreaIT.java.AM.Container;
 import com.KoreaIT.java.AM.dto.Article;
+import com.KoreaIT.java.AM.dto.Member;
 import com.KoreaIT.java.AM.util.Util;
 
 public class ArticleController extends Controller {
@@ -13,10 +15,12 @@ public class ArticleController extends Controller {
 	private Scanner sc;
 	private String cmd;
 
+	List<Member> members = Container.memberDao.members;
+
 	int lastArticleId = 3;
 
 	public ArticleController(Scanner sc) {
-		this.articles = new ArrayList<>();
+		this.articles = Container.articleDao.articles;
 		this.sc = sc;
 	}
 
@@ -91,17 +95,25 @@ public class ArticleController extends Controller {
 			}
 		}
 
+		String writerName = null;
+
 		System.out.println("  번호    /   작성일  /   작성자   /  제목   /   조회  ");
 		for (int i = forPrintArticles.size() - 1; i >= 0; i--) {
 			Article article = forPrintArticles.get(i);
+
+			for (Member member : members) {
+				if (article.getMemberId() == member.getId()) {
+					writerName = member.getName();
+					break;
+				}
+			}
+
 			if (Util.getNowDate_TimeStr().split(" ")[0].equals(article.getRegDate().split(" ")[0])) {
-				System.out.printf("  %4d  /   %5s    /     %d   /   %s    /   %d\n", article.getId(),
-						article.getRegDate().split(" ")[1], article.getMemberId(), article.getTitle(),
-						article.getHit());
+				System.out.printf("  %4d  /   %5s    /     %s   /   %s    /   %d\n", article.getId(),
+						article.getRegDate().split(" ")[1], writerName, article.getTitle(), article.getHit());
 			} else {
-				System.out.printf("  %4d  /   %5s    /     %d   /   %s    /   %d\n", article.getId(),
-						article.getRegDate().split(" ")[0], article.getMemberId(), article.getTitle(),
-						article.getHit());
+				System.out.printf("  %4d  /   %5s    /     %s   /   %s    /   %d\n", article.getId(),
+						article.getRegDate().split(" ")[0], writerName, article.getTitle(), article.getHit());
 			}
 
 		}
