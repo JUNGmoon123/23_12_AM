@@ -11,7 +11,8 @@ public class MemberController extends Controller {
 	private List<Member> members;
 	private Scanner sc;
 	private String cmd;
-
+	private int s = 0;
+	
 	int lastMemberId = 3;
 
 	public MemberController(Scanner sc) {
@@ -68,7 +69,7 @@ public class MemberController extends Controller {
 		}
 
 		loginedMember = member;
-
+		
 		System.out.printf("로그인 성공! %s님 반갑습니다.\n", member.getName());
 
 	}
