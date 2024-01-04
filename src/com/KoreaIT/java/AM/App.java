@@ -31,7 +31,7 @@ public class App {
 			}
 
 			if (cmd.equals("exit")) {
-				break;
+				break; 
 			}
 
 			String[] cmdBits = cmd.split(" ");

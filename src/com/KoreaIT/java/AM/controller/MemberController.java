@@ -11,8 +11,9 @@ public class MemberController extends Controller {
 	private List<Member> members;
 	private Scanner sc;
 	private String cmd;
-	private Member loginedMember = null;
-	
+
+	int lastMemberId = 3;
+
 	public MemberController(Scanner sc) {
 		this.members = new ArrayList<>();
 		this.sc = sc;
@@ -26,10 +27,18 @@ public class MemberController extends Controller {
 			doJoin();
 			break;
 		case "login":
-			dologin();
+			if (isLogined()) {
+				System.out.println("이미 로그인 상태야");
+				return;
+			}
+			doLogin();
 			break;
 		case "logout":
-			dologout();
+			if (!isLogined()) {
+				System.out.println("이미 로그아웃 상태야");
+				return;
+			}
+			doLogout();
 			break;
 		default:
 			System.out.println("명령어 확인해 (actionMethodName 오류)5");
@@ -37,75 +46,39 @@ public class MemberController extends Controller {
 		}
 	}
 
-	private void dologout() {
-		if(loginedMember == null) {
-			System.out.println("이미 로그아웃상태입니다.");
-		}
-		String loginid = null;
-		String loginpw = null;
-		System.out.println("==로그아웃==");
-		System.out.println("아이디와 비번확인");
-		System.out.print("아이디 : ");
-		loginid = sc.nextLine().trim();
-		System.out.print("비밀번호 : ");
-		loginpw = sc.nextLine().trim();
-
-		Member find_Num = findMember(loginid);
-		if(find_Num == null) {
-			System.out.println("아이디를 다시 입력하세요.");
-			return;
-		}
-		if (find_Num.getLoginPw().equals(loginpw) == true) {
-			System.out.println("로그아웃 성공."+find_Num.getName()+"님");
-		} else {
-			System.out.println("비밀번호를 다시 입력하세요.");
-			return;
-		}
-	}
-	private boolean isLogined() {
-		return loginedMember != null;
-	}
-	private void dologin() {
-		
-		if (isLogined()) {
-			System.out.println("이미 로그인 상태야");
-			return;
-		}
-		
-		String loginid = null;
-		String loginpw = null;
+	private void doLogin() {
 		System.out.println("==로그인==");
-		System.out.print("아이디 : ");
-		loginid = sc.nextLine().trim();
-		System.out.print("비밀번호 : ");
-		loginpw = sc.nextLine().trim();
+		System.out.print("로그인 아이디 : ");
+		String loginId = sc.nextLine();
+		System.out.print("로그인 비밀번호 : ");
+		String loginPw = sc.nextLine();
 
-		Member find_Num = findMember(loginid);
-		if(find_Num == null) {
-			System.out.println("아이디를 다시 입력하세요.");
+		// 얘 있나? -> 사용자가 입력한 로그인 아이디랑 일치하는 회원이 나한테 있나?
+
+		Member member = getMemberByLoginId(loginId);
+
+		if (member == null) {
+			System.out.println("일치하는 회원이 없어");
 			return;
 		}
-		if (find_Num.getLoginPw().equals(loginpw)) {
-			loginedMember = find_Num;
-			System.out.println("로그인 성공."+find_Num.getName()+"님");
-		} else {
-			System.out.println("비밀번호를 다시 입력하세요.");
+
+		if (member.getLoginPw().equals(loginPw) == false) {
+			System.out.println("비밀번호가 일치하지 않습니다");
 			return;
 		}
-		
+
+		loginedMember = member;
+
+		System.out.printf("로그인 성공! %s님 반갑습니다.\n", member.getName());
+
 	}
 
-	private Member findMember(String loginid) {
-		for (Member member : members) {
-			if (member.getLoginId().equals(loginid) == true) {
-				return member;
-			}
-			
-		}
-		return null;
-	}
+	private void doLogout() {
+		loginedMember = null;
 
-	int lastMemberId = 3;
+		System.out.printf("로그아웃 성공!\n");
+
+	}
 
 	private void doJoin() {
 		System.out.println("==회원 가입==");
@@ -138,13 +111,21 @@ public class MemberController extends Controller {
 
 		System.out.print("이름 : ");
 		String name = sc.nextLine();
-
 		Member member = new Member(id, regDate, loginId, loginPw, name);
 		members.add(member);
 
 		System.out.printf("%d번 회원이 가입 되었습니다. %s님 환영합니다.\n", id, name);
 		lastMemberId++;
 
+	}
+
+	private Member getMemberByLoginId(String loginId) {
+		for (Member member : members) {
+			if (member.getLoginId().equals(loginId)) {
+				return member;
+			}
+		}
+		return null;
 	}
 
 	private boolean isJoinableLoginId(String loginId) {
@@ -158,10 +139,10 @@ public class MemberController extends Controller {
 	}
 
 	public void makeTestData() {
-		System.out.println("member테스트 데이터 생성합니다.");
-		members.add(new Member(1, Util.getNowDate_TimeStr(), "qwe", "qwe", "t1"));
-		members.add(new Member(2, Util.getNowDate_TimeStr(), "eee", "eee", "t2"));
-		members.add(new Member(3, Util.getNowDate_TimeStr(), "rrr", "rrr", "t3"));
+		System.out.println("테스트를 위한 회원 데이터를 생성합니다.");
+		members.add(new Member(1, Util.getNowDate_TimeStr(), "admin", "admin", "관리자"));
+		members.add(new Member(2, Util.getNowDate_TimeStr(), "test1", "test1", "회원1"));
+		members.add(new Member(3, Util.getNowDate_TimeStr(), "test2", "test2", "회원2"));
 	}
 
 }
